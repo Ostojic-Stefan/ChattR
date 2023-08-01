@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Stefan\\source\\repos\\ChattR\\ChattR\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\Stefan\\source\\repos\\ChattR\\ChattR\\wwwroot\\signalr.js",
+      "PackagePath": "staticwebassets\\signalr.js"
+    },
+    {
+      "Id": "C:\\Users\\Stefan\\source\\repos\\ChattR\\ChattR\\wwwroot\\signalr.js.map",
+      "PackagePath": "staticwebassets\\signalr.js.map"
+    },
+    {
+      "Id": "C:\\Users\\Stefan\\source\\repos\\ChattR\\ChattR\\wwwroot\\signalr.min.js",
+      "PackagePath": "staticwebassets\\signalr.min.js"
+    },
+    {
+      "Id": "C:\\Users\\Stefan\\source\\repos\\ChattR\\ChattR\\wwwroot\\signalr.min.js.map",
+      "PackagePath": "staticwebassets\\signalr.min.js.map"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.ChattR.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.ChattR.props",
+      "PackagePath": "build\\ChattR.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.ChattR.props",
+      "PackagePath": "buildMultiTargeting\\ChattR.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.ChattR.props",
+      "PackagePath": "buildTransitive\\ChattR.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
