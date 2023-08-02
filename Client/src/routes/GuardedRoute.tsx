@@ -1,17 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 interface GuardedRouteProps {
-  isRouteAccessible?: boolean;
-  redirectRoute?: string;
+  isAccessible: boolean;
+  redirectRoute: string;
 }
 
 export default function GuardedRoute({
-  isRouteAccessible = false,
-  redirectRoute = "/",
+  isAccessible,
+  redirectRoute,
 }: GuardedRouteProps) {
-  return isRouteAccessible ? (
-    <Outlet />
-  ) : (
-    <Navigate to={redirectRoute} replace />
-  );
+  if (isAccessible) return <Navigate to={redirectRoute} />;
+  return <Outlet />;
 }

@@ -1,46 +1,36 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import GuardedRoute from "./GuardedRoute";
+import Lobby from "../pages/Lobby";
+import Login from "../pages/Login";
+import Chat from "../pages/Chat";
+import { useUser } from "../context/UserContext";
 
-interface AppRoutesProp {
-  /**
-   * True, if the user is authenticated, false otherwise.
-   */
-  isAuthenticated: boolean;
-}
-
-const HOME_ROUTE = "/home";
-const LOGIN_ROUTE = "/login";
-const ABOUT_ROUTE = "/about";
-
-function AppRoutes(props: AppRoutesProp) {
-  const { isAuthenticated } = props;
+function AppRoutes() {
+  const { isAuthenticated } = useUser();
 
   return (
     <Routes>
-      <Route path={ABOUT_ROUTE} element={<p>About Page</p>} />
-
+      <Route path="/" element={<Navigate to="/lobby" />} />
+      <Route path="/lobby" element={<Lobby />} />
       <Route
+        path="/login"
+        element={
+          <GuardedRoute isAccessible={isAuthenticated} redirectRoute="/lobby" />
+        }
+      >
+        <Route path="/login" element={<Login />} />
+      </Route>
+      <Route
+        path="/chat/:id"
         element={
           <GuardedRoute
-            isRouteAccessible={!isAuthenticated}
-            redirectRoute={HOME_ROUTE}
+            isAccessible={!isAuthenticated}
+            redirectRoute="/login"
           />
         }
       >
-        <Route path={LOGIN_ROUTE} element={<p>Login Page</p>} />
+        <Route path="/chat/:id" element={<Chat />} />
       </Route>
-
-      <Route
-        element={
-          <GuardedRoute
-            isRouteAccessible={isAuthenticated}
-            redirectRoute={LOGIN_ROUTE}
-          />
-        }
-      >
-        <Route path={HOME_ROUTE} element={<p>Home Page</p>}></Route>
-      </Route>
-      <Route path="*" element={<p>Page Not Found</p>} />
     </Routes>
   );
 }
