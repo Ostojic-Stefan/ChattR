@@ -53,6 +53,8 @@ public class AuthController : ControllerBase
         var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Username == model.Username,
             cancellationToken);
 
+        // check for password
+
         if (user is null)
             return BadRequest("User does not exist");
 
@@ -68,7 +70,7 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("me")]
+    [HttpGet("me")]
     [Authorize]
     public async Task<IActionResult> GetUserInfo(CancellationToken cancellationToken)
     {
