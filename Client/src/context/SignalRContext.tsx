@@ -18,13 +18,7 @@ type Props = {
 };
 
 interface ISignalRContext {
-  setConnection: (val: HubConnection) => void;
-  invoke: (methodName: string) => Promise<any>;
-  onClose: (callback: (e: Error | undefined) => void) => void;
-  listenOn: (
-    methodName: string,
-    callback: (...args: any[]) => any
-  ) => Promise<void>;
+  connection: HubConnection | undefined;
 }
 
 // @ts-ignore
@@ -35,15 +29,22 @@ function SignalRProvider({ children, hubName }: Props) {
   const connectionEstablishedRef = useRef(false);
 
   useEffect(() => {
-    const conn = new HubConnectionBuilder()
-      .withUrl(`http://localhost:5000/api/${hubName}`)
-      .configureLogging(LogLevel.Information)
-      .withAutomaticReconnect()
-      .build();
-    conn.start().then(() => {
-      setConnection(conn);
-      connectionEstablishedRef.current = true;
-    });
+    async function fn() {
+      try {
+        const conn = new HubConnectionBuilder()
+          .withUrl(`http://localhost:5000/api/${hubName}`)
+          .configureLogging(LogLevel.Information)
+          .withAutomaticReconnect()
+          .build();
+        await conn.start();
+        setConnection(conn);
+        connectionEstablishedRef.current = true;
+      } catch (error) {
+        console.log(JSON.stringify(error));
+      }
+    }
+
+    fn();
 
     return () => {
       if (connection && connectionEstablishedRef.current) {
@@ -53,49 +54,42 @@ function SignalRProvider({ children, hubName }: Props) {
     };
   }, []);
 
-  async function invoke(methodName: string) {
-    if (!connection) {
-      throw new Error("signalR connection is not established");
-    }
-    const result = await connection.invoke(methodName);
-    return result;
-  }
-
-  async function onClose(callback: (e: Error | undefined) => void) {
-    if (!connection) {
-      throw new Error("signalR connection is not established");
-    }
-    connection.onclose(callback);
-  }
-
-  async function listenOn(
-    methodName: string,
-    callback: (...args: any[]) => any
-  ): Promise<void> {
-    if (!connection) {
-      throw new Error("signalR connection is not established");
-    }
-    connection.on(methodName, callback);
-  }
-
-  if (!connection) return;
-
   return (
-    <SignalRContext.Provider
-      value={{ setConnection, invoke, onClose, listenOn }}
-    >
+    <SignalRContext.Provider value={{ connection }}>
       {children}
     </SignalRContext.Provider>
   );
 }
 
-function useSignalR() {
+function UseSignalR() {
   const context = useContext(SignalRContext);
+  const { connection } = context;
+
   if (context === undefined)
     throw new Error(
       "SignalRContext is being accessed outside of the SignalRProvider"
     );
-  return context;
+
+  function listenOn(methodName: string, callback: (...args: any[]) => any) {
+    useEffect(() => {
+      connection?.on(methodName, callback);
+    }, [methodName, connection, callback]);
+  }
+
+  async function invoke(methodName: string, ...rest: any[]) {
+    const [result, setResult] = useState(null);
+
+    useEffect(() => {
+      connection
+        ?.invoke(methodName, rest)
+        .then((res) => setResult(res))
+        .catch((err) => JSON.stringify(err));
+    }, [methodName, connection, setResult, ...rest]);
+
+    return result;
+  }
+
+  return { listenOn, invoke };
 }
 
-export { useSignalR, SignalRProvider };
+export { UseSignalR, SignalRProvider };

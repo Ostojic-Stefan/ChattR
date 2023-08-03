@@ -12,25 +12,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Navigate to="/lobby" />} />
       <Route path="/lobby" element={<Lobby />} />
-      <Route
-        path="/login"
-        element={
-          <GuardedRoute isAccessible={isAuthenticated} redirectRoute="/lobby" />
-        }
-      >
-        <Route path="/login" element={<Login />} />
-      </Route>
-      <Route
-        path="/chat/:id"
-        element={
-          <GuardedRoute
-            isAccessible={!isAuthenticated}
-            redirectRoute="/login"
-          />
-        }
-      >
-        <Route path="/chat/:id" element={<Chat />} />
-      </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/chat/:id" element={<Chat />} />
     </Routes>
   );
 }

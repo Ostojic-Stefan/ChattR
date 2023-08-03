@@ -1,9 +1,9 @@
 import axiosInstance from "./axiosConfig";
 import { ApiError, Result, apiResultWrapper } from "./models";
 
-type RoomResponse = {
-    ownerUser: string;
-    roomName: string;
+export type RoomResponse = {
+    name: string;
+    ownerUsername: string;
 }
 
 type AllRoomsResponse = {
