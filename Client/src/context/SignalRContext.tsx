@@ -8,6 +8,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -31,6 +32,7 @@ const SignalRContext = createContext<ISignalRContext>({});
 
 function SignalRProvider({ children, hubName }: Props) {
   const [connection, setConnection] = useState<HubConnection>();
+  const connectionEstablishedRef = useRef(false);
 
   useEffect(() => {
     const conn = new HubConnectionBuilder()
@@ -38,15 +40,24 @@ function SignalRProvider({ children, hubName }: Props) {
       .configureLogging(LogLevel.Information)
       .withAutomaticReconnect()
       .build();
-    conn.start().then(() => setConnection(conn));
-    console.log("HEREEEE");
+    conn.start().then(() => {
+      setConnection(conn);
+      connectionEstablishedRef.current = true;
+    });
+
+    return () => {
+      if (connection && connectionEstablishedRef.current) {
+        connection.stop();
+        console.log("SignalR connection stopped");
+      }
+    };
   }, []);
 
   async function invoke(methodName: string) {
     if (!connection) {
       throw new Error("signalR connection is not established");
     }
-    const result = await connection!.invoke(methodName);
+    const result = await connection.invoke(methodName);
     return result;
   }
 
@@ -54,7 +65,7 @@ function SignalRProvider({ children, hubName }: Props) {
     if (!connection) {
       throw new Error("signalR connection is not established");
     }
-    connection!.onclose(callback);
+    connection.onclose(callback);
   }
 
   async function listenOn(
@@ -64,7 +75,7 @@ function SignalRProvider({ children, hubName }: Props) {
     if (!connection) {
       throw new Error("signalR connection is not established");
     }
-    connection!.on(methodName, callback);
+    connection.on(methodName, callback);
   }
 
   if (!connection) return;

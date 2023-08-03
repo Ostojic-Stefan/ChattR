@@ -33,19 +33,6 @@ function App() {
     fn();
   }, []);
 
-  // useEffect(() => {
-  //   const signalRService = new SignalRService();
-  //   signalRService.startConnection();
-  //   signalRService.getConnection().on("receive_all_rooms", (rooms) => {
-  //     console.log("receive_all_rooms");
-  //     console.log(rooms);
-  //   });
-
-  //   return () => {
-  //     signalRService.stopConnection();
-  //   };
-  // }, []);
-
   if (isLoading) return <div>Loading...</div>;
 
   return (
