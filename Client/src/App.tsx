@@ -4,16 +4,18 @@ import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { authService } from "./api/auth";
 import { useUser } from "./context/UserContext";
+import { useSignalR } from "./context/SignalRContext";
 
 function App() {
   const { setIsAuthenticated } = useUser();
   const [isLoading, setIsLoading] = useState(false);
+  const { listenOn } = useSignalR();
 
   useEffect(() => {
     async function getUserInfo() {
       const response = await authService.me();
       if (response.hasError) {
-        console.error(response.err);
+        console.log(response.err);
       } else {
         setIsAuthenticated(true);
       }
@@ -21,6 +23,28 @@ function App() {
     }
     getUserInfo();
   }, []);
+
+  useEffect(() => {
+    async function fn() {
+      await listenOn("receive_all_rooms", (rooms) => {
+        console.log(rooms);
+      });
+    }
+    fn();
+  }, []);
+
+  // useEffect(() => {
+  //   const signalRService = new SignalRService();
+  //   signalRService.startConnection();
+  //   signalRService.getConnection().on("receive_all_rooms", (rooms) => {
+  //     console.log("receive_all_rooms");
+  //     console.log(rooms);
+  //   });
+
+  //   return () => {
+  //     signalRService.stopConnection();
+  //   };
+  // }, []);
 
   if (isLoading) return <div>Loading...</div>;
 

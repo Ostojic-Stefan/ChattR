@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ChattR.Responses;
+using ChattR.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -11,10 +14,12 @@ namespace ChattR.Controllers;
 public class RoomsController : ControllerBase
 {
     private readonly DataContext ctx;
+    private readonly ChatHubService chatHubService;
 
-    public RoomsController(DataContext ctx)
+    public RoomsController(DataContext ctx, ChatHubService chatHubService)
     {
         this.ctx = ctx;
+        this.chatHubService = chatHubService;
     }
 
     [HttpPost]
@@ -30,11 +35,22 @@ public class RoomsController : ControllerBase
         };
         ctx.Rooms.Add(newRoom);
         await ctx.SaveChangesAsync(cancellationToken);
-        return Ok(newRoom);
+
+        await chatHubService.NotifyUsersForNewRoom();
+
+        return Ok();
     }
 
     [HttpGet]
     [Route("all")]
     public async Task<IActionResult> GetAllRooms(CancellationToken cancellationToken)
-        => Ok(await ctx.Rooms.ToListAsync(cancellationToken));
+    {
+        var rooms = await ctx.Rooms
+            .Select(r => new RoomResponse
+            {
+                Name = r.Name,
+                OwnerUsername = r.User.Username
+            }).ToListAsync(cancellationToken);
+        return Ok(rooms);
+    }
 }

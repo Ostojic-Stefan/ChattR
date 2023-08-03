@@ -1,6 +1,9 @@
 using ChattR;
+using ChattR.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Channels;
+using static ChattR.Controllers.RoomsController;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +20,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
+builder.Services.AddScoped<ChatHubService>();
+
 builder.Services.AddDbContext<DataContext>(
     opt => opt.UseSqlite("DataSource=app.db"));
 
@@ -30,7 +35,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("/chathub");
+app.MapHub<ChatHub>("/api/chathub");
 
 app.MapWhen(x => !x.Request.Path.Value.StartsWith("/api"), builder =>
 {
