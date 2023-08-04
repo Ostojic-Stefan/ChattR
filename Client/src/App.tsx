@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { authService } from "./api/auth";
@@ -25,11 +24,11 @@ function App() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <>
+    <div className="app-container">
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>
-    </>
+    </div>
   );
 }
 

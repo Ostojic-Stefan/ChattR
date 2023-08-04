@@ -61,7 +61,7 @@ function SignalRProvider({ children, hubName }: Props) {
   );
 }
 
-function UseSignalR() {
+function useSignalR() {
   const context = useContext(SignalRContext);
   const { connection } = context;
 
@@ -77,19 +77,20 @@ function UseSignalR() {
   }
 
   async function invoke(methodName: string, ...rest: any[]) {
-    const [result, setResult] = useState(null);
+    return await connection?.invoke(methodName, rest);
+    // const [result, setResult] = useState(null);
 
-    useEffect(() => {
-      connection
-        ?.invoke(methodName, rest)
-        .then((res) => setResult(res))
-        .catch((err) => JSON.stringify(err));
-    }, [methodName, connection, setResult, ...rest]);
+    // useEffect(() => {
+    //   connection
+    //     ?.invoke(methodName, rest)
+    //     .then((res) => setResult(res))
+    //     .catch((err) => JSON.stringify(err));
+    // }, [methodName, connection, setResult]);
 
-    return result;
+    // return result;
   }
 
-  return { listenOn, invoke };
+  return { listenOn, invoke, connection };
 }
 
-export { UseSignalR, SignalRProvider };
+export { useSignalR, SignalRProvider };

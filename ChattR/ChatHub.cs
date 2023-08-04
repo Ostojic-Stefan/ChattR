@@ -5,7 +5,6 @@ using System.Security.Claims;
 
 namespace ChattR;
 
-[Authorize]
 public class ChatHub : Hub
 {
     private readonly DataContext ctx;
@@ -15,6 +14,7 @@ public class ChatHub : Hub
         this.ctx = ctx;
     }
 
+    [Authorize]
     public async Task<JoinRoomResponse> JoinRoom(string roomName)
     {
         var room = await ctx.Rooms
@@ -34,10 +34,11 @@ public class ChatHub : Hub
         return null;
     }
 
+    [Authorize]
     public Task LeaveRoom(string roomName)
         => Groups.RemoveFromGroupAsync(Context.ConnectionId, roomName);
 
-
+    [Authorize]
     public async Task SendMessage(string contents, string roomName)
     {
         var userId = Context.User?.FindFirstValue("userId");

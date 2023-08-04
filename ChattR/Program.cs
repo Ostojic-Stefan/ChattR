@@ -25,7 +25,10 @@ builder.Services.AddScoped<ChatHubService>();
 builder.Services.AddDbContext<DataContext>(
     opt => opt.UseSqlite("DataSource=app.db"));
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(opt =>
+{
+    opt.EnableDetailedErrors = true;
+});
 
 var app = builder.Build();
 
