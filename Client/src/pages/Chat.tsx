@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSignalR } from "../context/SignalRContext";
+import { useParams } from "react-router";
 
 function Chat() {
-  const { invoke, listenOn, connection } = useSignalR();
+  const { connection } = useSignalR();
+  const { roomName } = useParams();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<
     { contents: string; userId: string }[]
@@ -10,20 +12,26 @@ function Chat() {
 
   useEffect(() => {
     async function fn() {
-      await connection?.invoke("JoinRoom", "badass");
-      connection?.on(
-        "send_message",
-        (res: { contents: string; userId: string }) => {
-          console.log(res);
-          setMessages((curr) => [...curr, res]);
-        }
-      );
+      if (connection) {
+        const response = await connection?.invoke("JoinRoom", roomName);
+        console.log(response);
+
+        setMessages(response.messagesHistory);
+
+        connection?.on(
+          "send_message",
+          (res: { contents: string; userId: string }) => {
+            console.log(res);
+            setMessages((curr) => [...curr, res]);
+          }
+        );
+      }
     }
     fn();
   }, [connection]);
 
   async function handleSendMessage() {
-    connection?.invoke("SendMessage", message, "badass");
+    connection?.invoke("SendMessage", message, roomName);
   }
 
   return (

@@ -17,8 +17,8 @@ public class Message
 {
 	public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public Guid RoomId { get; set; }
-    public required string Contents { get; set; }
+	public User User { get; set; }
+	public required string Contents { get; set; }
 }
 
 public class Room

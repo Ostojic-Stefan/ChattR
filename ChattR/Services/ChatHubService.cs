@@ -1,4 +1,4 @@
-﻿using ChattR.Responses;
+﻿using ChattR.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,11 +17,9 @@ public class ChatHubService
 
     public async Task NotifyUsersForNewRoom()
     {
-        var rooms = await ctx.Rooms.Select(r => new RoomResponse
-        {
-            Name = r.Name,
-            OwnerUsername = r.User.Username
-        }).ToListAsync();
+        var rooms = await ctx.Rooms
+            .Select(r => new RoomResponse(r.Name, r.User.Username))
+            .ToListAsync();
         await chatHub.Clients.All.SendAsync("receive_all_rooms", rooms);
     }
 

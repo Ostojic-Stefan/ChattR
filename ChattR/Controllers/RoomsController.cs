@@ -1,5 +1,5 @@
-﻿using ChattR.Responses;
-using ChattR.Services;
+﻿using ChattR.Services;
+using ChattR.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,11 +44,8 @@ public class RoomsController : ControllerBase
     public async Task<IActionResult> GetAllRooms(CancellationToken cancellationToken)
     {
         var rooms = await ctx.Rooms
-            .Select(r => new RoomResponse
-            {
-                Name = r.Name,
-                OwnerUsername = r.User.Username
-            }).ToListAsync(cancellationToken);
+            .Select(r => new RoomResponse(r.Name, r.User.Username))
+            .ToListAsync(cancellationToken);
         return Ok(rooms);
     }
 }

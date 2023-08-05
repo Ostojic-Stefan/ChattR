@@ -13,7 +13,7 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/lobby" />} />
       <Route path="/lobby" element={<Lobby />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/chat/:id" element={<Chat />} />
+      <Route path="/chat/:roomName" element={<Chat />} />
     </Routes>
   );
 }

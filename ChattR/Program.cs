@@ -1,5 +1,6 @@
 using ChattR;
 using ChattR.Services;
+using ChattR.SignalR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Channels;
