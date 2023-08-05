@@ -6,21 +6,30 @@ namespace ChattR.Services;
 
 public class ChatHubService
 {
-    private readonly DataContext ctx;
-    private readonly IHubContext<ChatHub> chatHub;
+    private readonly DataContext _ctx;
+    private readonly IHubContext<ChatHub> _chatHub;
+    private readonly ConnectionService _connectionService;
 
-    public ChatHubService(DataContext ctx, IHubContext<ChatHub> chatHub)
+    public ChatHubService(DataContext ctx, IHubContext<ChatHub> chatHub, ConnectionService connectionService)
 	{
-        this.ctx = ctx;
-        this.chatHub = chatHub;
+        _ctx = ctx;
+        _chatHub = chatHub;
+        _connectionService = connectionService;
     }
 
     public async Task NotifyUsersForNewRoom()
     {
-        var rooms = await ctx.Rooms
+        var rooms = await _ctx.Rooms
             .Select(r => new RoomResponse(r.Name, r.User.Username))
             .ToListAsync();
-        await chatHub.Clients.All.SendAsync("receive_all_rooms", rooms);
+        await _chatHub.Clients.All.SendAsync("receive_all_rooms", rooms);
     }
 
+    public async Task SendConnectedUsers(string roomName, CancellationToken cancellationToken)
+    {
+        var userIds = _connectionService.GetConnectedUsersForRoom(roomName);
+        var users = await _ctx.Users.Where(u => userIds.Contains(u.Id))
+            .ToListAsync(cancellationToken);
+        await _chatHub.Clients.Group(roomName).SendAsync("users_in_room", users, cancellationToken);
+    }
 }

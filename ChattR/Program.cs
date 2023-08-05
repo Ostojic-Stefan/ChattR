@@ -22,6 +22,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddScoped<ChatHubService>();
+builder.Services.AddSingleton<ConnectionService>();
 
 builder.Services.AddDbContext<DataContext>(
     opt => opt.UseSqlite("DataSource=app.db"));

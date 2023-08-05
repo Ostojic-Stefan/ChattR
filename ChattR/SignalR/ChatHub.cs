@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ChattR.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -8,16 +9,19 @@ namespace ChattR.SignalR;
 public class ChatHub : Hub
 {
     private readonly DataContext _ctx;
+    private readonly ConnectionService _connectionService;
+    private readonly ChatHubService _service;
 
-    public ChatHub(DataContext ctx)
+    public ChatHub(DataContext ctx, ConnectionService connectionService, ChatHubService service)
     {
         _ctx = ctx;
+        _connectionService = connectionService;
+        _service = service;
     }
 
     [Authorize]
     public async Task JoinRoom(JoinRoomRequest request, CancellationToken cancellationToken)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomName, cancellationToken);
         var roomMessages = await _ctx.Rooms
             .SelectMany(r => r.Messages)
             .Select(m => new MessageResponse(m.Contents, m.User.Username))
@@ -27,8 +31,15 @@ public class ChatHub : Hub
             await Clients.Caller.SendRoomNotFound(cancellationToken);
             return;
         }
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomName, cancellationToken);
+
+        _connectionService.AddConnectionToRoom(request.RoomName,
+            Guid.Parse(Context.User?.FindFirstValue("userId")!));
+
         var response = new JoinRoomResponse(roomMessages);
         await Clients.Group(request.RoomName).SendAsync("join_room", response, cancellationToken);
+        await _service.SendConnectedUsers(request.RoomName, cancellationToken);
     }
 
     [Authorize]
@@ -41,6 +52,10 @@ public class ChatHub : Hub
             return;
         }
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, request.RoomName, cancellationToken);
+
+        _connectionService.RemoveConnectionFromRoom(request.RoomName,
+            Guid.Parse(Context.User?.FindFirstValue("userId")!));
+        await _service.SendConnectedUsers(request.RoomName, cancellationToken);
     }
 
     [Authorize]
