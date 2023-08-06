@@ -30,6 +30,6 @@ public class ChatHubService
         var userIds = _connectionService.GetConnectedUsersForRoom(roomName);
         var users = await _ctx.Users.Where(u => userIds.Contains(u.Id))
             .ToListAsync(cancellationToken);
-        await _chatHub.Clients.Group(roomName).SendAsync("users_in_room", users, cancellationToken);
+        await _chatHub.Clients.Group(roomName).SendAsync("users_in_room", new UsersInRoomResponse(users), cancellationToken);
     }
 }

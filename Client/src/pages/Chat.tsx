@@ -1,54 +1,39 @@
 import { useEffect, useState } from "react";
-import { useSignalR } from "../context/SignalRContext";
 import { useParams } from "react-router";
+import chatApi from "../signalr/chatApi";
+import { MessageResponse, UserResponse } from "../signalr/types";
 
 function Chat() {
-  const { connection } = useSignalR();
   const { roomName } = useParams();
-
-  const [usersInRoom, setUsersInRoom] = useState([]);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<
-    { contents: string; senderUsername: string }[]
-  >([]);
+
+  // prettier-ignore
+  const [usersInRoom, setUsersInRoom] = useState<ReadonlyArray<UserResponse>>([]);
+  const [messages, setMessages] = useState<ReadonlyArray<MessageResponse>>([]);
 
   const numUsersInRoom = usersInRoom.length;
 
   useEffect(() => {
-    async function fn() {
-      if (connection) {
-        connection.on(
-          "send_message",
-          (res: { contents: string; senderUsername: string }) => {
-            console.log(res);
-            setMessages((curr) => [...curr, res]);
-          }
-        );
+    chatApi.onReceiveMessage((response) => {
+      setMessages((prevMessages) => [...prevMessages, response]);
+    });
 
-        connection.on("users_in_room", (res) => {
-          setUsersInRoom(res);
-          console.log("users in room: ", res);
-        });
+    chatApi.onUsersInRoom((response) => {
+      setUsersInRoom(response.users);
+    });
 
-        connection.on("join_room", (response) => {
-          console.log(response);
-          setMessages(response.messages);
-        });
-
-        connection.invoke("JoinRoom", {
-          RoomName: roomName,
-        });
-      }
-    }
-    fn();
+    chatApi.joinRoom({ roomName: roomName! }).then((response) => {
+      setMessages(response.messages);
+    });
 
     return () => {
-      connection?.invoke("LeaveRoom", { roomName });
+      console.log("Leaving room");
+      chatApi.leaveRoom({ roomName: roomName! });
     };
-  }, [connection]);
+  }, []);
 
   async function handleSendMessage() {
-    connection?.invoke("SendMessage", { contents: message, roomName });
+    chatApi.sendMessage({ contents: message, roomName: roomName! });
   }
 
   return (
@@ -60,10 +45,10 @@ function Chat() {
       </div>
       <div className="right">
         <div className="message-container">
-          {messages?.map((m, idx) => (
+          {messages?.map((message, idx) => (
             <div key={idx} className="message">
-              <div className="contents">{m.contents}</div>
-              <div className="user">username: {m.senderUsername}</div>
+              <div className="contents">{message.contents}</div>
+              <div className="user">username: {message.senderUsername}</div>
             </div>
           ))}
         </div>

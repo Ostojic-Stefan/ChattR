@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { RoomResponse, roomService } from "../api/room";
-import { useSignalR } from "../context/SignalRContext";
 import Expander from "../components/Expander";
 import { NavLink, useNavigate } from "react-router-dom";
+import chatApi from "../signalr/chatApi";
 
 function Lobby() {
   const navigate = useNavigate();
-  const [rooms, setRooms] = useState<RoomResponse[]>([]);
-  const { listenOn } = useSignalR();
+  const [rooms, setRooms] = useState<ReadonlyArray<RoomResponse>>([]);
+  // const { listenOn } = useSignalR();
 
-  listenOn("receive_all_rooms", (rooms) => {
-    setRooms(rooms);
-  });
+  // listenOn("receive_all_rooms", (rooms) => {
+  //   setRooms(rooms);
+  // });
+
+  useEffect(() => {
+    chatApi.onReceiveAllRooms((res) => {
+      setRooms(res.rooms);
+    });
+    // chatConnection().then((chatApi) => {
+    //   chatApi.onReceiveAllRooms((res) => {
+    //     setRooms(res.rooms);
+    //   });
+    // });
+  }, []);
 
   useEffect(() => {
     async function fn() {

@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 
 interface ExpanderProps<T> {
-  items: T[];
+  items: ReadonlyArray<T>;
   visible: (item: T) => ReactNode;
   hidden: (item: T) => ReactNode;
 }

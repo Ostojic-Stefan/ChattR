@@ -26,18 +26,18 @@ public class ChatHub : Hub
     }
 
     [Authorize]
-    public async Task JoinRoom(JoinRoomRequest request)
+    public async Task<JoinRoomResponse> JoinRoom(JoinRoomRequest request)
     {
         var roomMessages = await _ctx.Rooms
             .Where(r => r.Name == request.RoomName)
             .SelectMany(r => r.Messages)
             .Select(m => new MessageResponse(m.Contents, m.User.Username))
             .ToListAsync();
-        if (roomMessages is null)
-        {
-            await Clients.Caller.SendRoomNotFound();
-            return;
-        }
+        //if (roomMessages is null)
+        //{
+        //    await Clients.Caller.SendRoomNotFound();
+        //    return;
+        //}
 
         await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomName);
 
@@ -45,8 +45,9 @@ public class ChatHub : Hub
             Guid.Parse(Context.User?.FindFirstValue("userId")!));
 
         var response = new JoinRoomResponse(roomMessages);
-        await Clients.Group(request.RoomName).SendAsync("join_room", response);
+        //await Clients.Group(request.RoomName).SendAsync("join_room", response);
         await _service.SendConnectedUsers(request.RoomName);
+        return response;
     }
 
     [Authorize]
@@ -86,7 +87,8 @@ public class ChatHub : Hub
             .Select(u => u.Username)
             .SingleAsync();
         var response = new MessageResponse(request.Contents, senderUsername);
-        await Clients.Group(request.RoomName).SendAsync("send_message", response);
+        await Clients.Group(request.RoomName)
+            .SendAsync("receive_message", response);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
