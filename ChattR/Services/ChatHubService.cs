@@ -25,7 +25,7 @@ public class ChatHubService
         await _chatHub.Clients.All.SendAsync("receive_all_rooms", rooms);
     }
 
-    public async Task SendConnectedUsers(string roomName, CancellationToken cancellationToken)
+    public async Task SendConnectedUsers(string roomName, CancellationToken cancellationToken = default)
     {
         var userIds = _connectionService.GetConnectedUsersForRoom(roomName);
         var users = await _ctx.Users.Where(u => userIds.Contains(u.Id))

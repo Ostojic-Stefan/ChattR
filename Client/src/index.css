@@ -97,6 +97,9 @@ ul {
 .chat-container .left {
   color: #ffc61b;
   background-color: #25211e;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
 }
 
 .chat-container .right {
