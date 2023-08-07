@@ -7,7 +7,7 @@ export type RoomResponse = {
 }
 
 type AllRoomsResponse = {
-    rooms: RoomResponse[]
+    rooms: ReadonlyArray<RoomResponse>;
 }
 
 interface IRoomService {
