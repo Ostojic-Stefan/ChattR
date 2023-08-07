@@ -22,7 +22,7 @@ public class ChatHubService
         var rooms = await _ctx.Rooms
             .Select(r => new RoomResponse(r.Name, r.User.Username))
             .ToListAsync();
-        await _chatHub.Clients.All.SendAsync("receive_all_rooms", rooms);
+        await _chatHub.Clients.All.SendAsync("receive_all_rooms", new AllRoomsResponse(rooms));
     }
 
     public async Task SendConnectedUsers(string roomName, CancellationToken cancellationToken = default)

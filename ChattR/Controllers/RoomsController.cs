@@ -46,6 +46,11 @@ public class RoomsController : ControllerBase
         var rooms = await ctx.Rooms
             .Select(r => new RoomResponse(r.Name, r.User.Username))
             .ToListAsync(cancellationToken);
-        return Ok(rooms);
+        return Ok(new AllRoomResponse { Rooms = rooms });
     }
+}
+
+internal class AllRoomResponse
+{
+    public ICollection<RoomResponse> Rooms { get; set; }
 }
