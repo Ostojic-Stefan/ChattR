@@ -33,11 +33,6 @@ public class ChatHub : Hub
             .SelectMany(r => r.Messages)
             .Select(m => new MessageResponse(m.Contents, m.User.Username))
             .ToListAsync();
-        //if (roomMessages is null)
-        //{
-        //    await Clients.Caller.SendRoomNotFound();
-        //    return;
-        //}
 
         await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomName);
 
@@ -45,7 +40,6 @@ public class ChatHub : Hub
             Guid.Parse(Context.User?.FindFirstValue("userId")!));
 
         var response = new JoinRoomResponse(roomMessages);
-        //await Clients.Group(request.RoomName).SendAsync("join_room", response);
         await _service.SendConnectedUsers(request.RoomName);
         return response;
     }

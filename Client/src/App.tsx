@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { authService } from "./api/auth";
 import { useUser } from "./context/UserContext";
+import Header from "./components/Header";
 
 function App() {
   const { setIsAuthenticated } = useUser();
@@ -24,11 +25,12 @@ function App() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="app-container">
-      <BrowserRouter>
+    <BrowserRouter>
+      <Header />
+      <div className="app-container">
         <AppRoutes />
-      </BrowserRouter>
-    </div>
+      </div>
+    </BrowserRouter>
   );
 }
 
